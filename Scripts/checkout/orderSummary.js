@@ -14,7 +14,7 @@ import {deliveryOptions} from '../../data/deliveryOptions.js';
 export function renderOrderSummary(){
   
       let cartSummaryHTML = '';
-
+      
       cart.forEach((cartItem) => {
         
         const productId = cartItem.productId;
