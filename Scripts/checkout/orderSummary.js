@@ -3,6 +3,8 @@ import { products } from '../../data/products.js';
 import { formatCurrency } from '../Utils/money.js';
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js'
 import {deliveryOptions} from '../../data/deliveryOptions.js';
+import { updateCartQuantity } from '../checkout.js';
+import { updateQuantity } from '../../data/cart.js';
 
 
 
@@ -72,9 +74,16 @@ export function renderOrderSummary(){
                     <span>
                       Quantity: <span class="quantity-label">${cartItem.quantity}</span>
                     </span>
-                    <span class="update-quantity-link link-primary">
+
+                    <span class="update-quantity-link link-primary  js-update-link" data-update-id="${matchingProduct.id}">
                       Update
                     </span>
+
+                   <input class="quantity-input js-quantity-input" value="${cartItem.quantity}" />
+
+                    <span class = "save-quantity-link link-primary js-save-link" data-product-id="${matchingProduct.id}">Save</span>
+
+
                     <span class="delete-quantity-link link-primary js-delete-link" data-product-id=${matchingProduct.id}>
                       Delete
                     </span>
@@ -136,8 +145,54 @@ export function renderOrderSummary(){
             `.js-cart-item-container-${productId}`
           );
           container.remove();
+          updateCartQuantity()
         });
       });
+
+      document.querySelectorAll('.js-update-link').forEach((update) => {
+        update.addEventListener('click', () =>{
+          const updateID = update.dataset.updateId
+          console.log(updateID)
+
+
+            const container = document.querySelector(
+            `.js-cart-item-container-${updateID}`
+          );
+          container.classList.add('is-editing-quantity');
+        });
+
+      });
+
+  document.querySelectorAll('.js-save-link').forEach((saveLink) => {
+  saveLink.addEventListener('click', () => {
+    const productId = saveLink.dataset.productId;
+
+    const container = document.querySelector(`.js-cart-item-container-${productId}`);
+
+    // ✅ Step 2: Get the new quantity from the input
+    const quantityInput = container.querySelector('.js-quantity-input');
+    const newQuantity = Number(quantityInput.value); // Convert to number
+
+    
+      if (isNaN(newQuantity) || newQuantity < 1 || newQuantity > 999) {
+        alert('Please enter a quantity between 1 and 999.');
+        return; // Stop the rest of the function
+      }
+    
+    // ✅ Update the cart
+    updateQuantity(productId, newQuantity);
+
+    // ✅ Update the visible quantity label
+    const label = container.querySelector('.quantity-label');
+    label.innerText = newQuantity;
+
+    // ✅ Step 1: Exit edit mode
+    container.classList.remove('is-editing-quantity');
+  });
+});
+
+
+
 
       document.querySelectorAll('.js-delivery-option').forEach((element) => {
         element.addEventListener('click', () => {
