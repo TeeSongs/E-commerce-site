@@ -227,3 +227,18 @@
 .is-editing-quantity .save-quantity-link {
   display: initial;
 }
+
+
+/* error styling */
+
+.quantity-input.invalid {
+  border: 2px solid red;
+  background-color: #ffe6e6;
+}
+
+.quantity-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none; /* hidden by default */
+}

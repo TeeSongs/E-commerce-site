@@ -54,7 +54,8 @@ export function renderOrderSummary(){
         cartSummaryHTML += `
           
             
-            <div class="cart-item-container js-cart-item-container-${matchingProduct.id}">
+            <div class="cart-item-container js-cart-item-container js-cart-item-container-${matchingProduct.id}" data-product-id="${matchingProduct.id}">
+
               <div class="delivery-date">
                 Delivery date: ${dateString}
               </div>
@@ -80,6 +81,7 @@ export function renderOrderSummary(){
                     </span>
 
                    <input class="quantity-input js-quantity-input" value="${cartItem.quantity}" />
+                   <div class="quantity-error js-quantity-error"></div>
 
                     <span class = "save-quantity-link link-primary js-save-link" data-product-id="${matchingProduct.id}">Save</span>
 
@@ -112,7 +114,7 @@ export function renderOrderSummary(){
           const today = dayjs();
           const deliveryDate = today.add(dO.deliveryDays, 'days');
           const dateString = deliveryDate.format('dddd, MMMM D');
-          const priceString = dO.PriceCents === 0 ? 'FREE' : `$${formatCurrency(dO.PriceCents)}`
+          const priceString = dO.PriceCents === 0 ? 'FREE' : `$${formatCurrency(dO.PriceCents)} -`
           const isChecked = dO.id === cartItem.deliveryOptionId;
           html +=  `
           <div class="delivery-option js-delivery-option" data-product-id="${matchingProduct.id}" data-delivery-option-id="${dO.id}">
@@ -171,13 +173,21 @@ export function renderOrderSummary(){
 
     // ✅ Step 2: Get the new quantity from the input
     const quantityInput = container.querySelector('.js-quantity-input');
+    const errorEl = container.querySelector('.js-quantity-error');
     const newQuantity = Number(quantityInput.value); // Convert to number
 
     
       if (isNaN(newQuantity) || newQuantity < 1 || newQuantity > 999) {
-        alert('Please enter a quantity between 1 and 999.');
-        return; // Stop the rest of the function
+        quantityInput.classList.add('invalid');
+        errorEl.innerText = 'Please enter a quantity between 1 and 999.';
+        errorEl.style.display = 'block';
+        return;
       }
+
+      // If valid, clear any previous error
+      quantityInput.classList.remove('invalid');
+      errorEl.innerText = '';
+      errorEl.style.display = 'none';
     
     // ✅ Update the cart
     updateQuantity(productId, newQuantity);
@@ -192,6 +202,30 @@ export function renderOrderSummary(){
 });
 
 
+document.querySelectorAll('.js-quantity-input').forEach((input) => {
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      const container = input.closest('.js-cart-item-container');
+
+      const productId = container.dataset.productId;
+      const newQuantity = Number(input.value);
+
+      if (isNaN(newQuantity) || newQuantity < 1 || newQuantity > 999) {
+        alert('Please enter a quantity between 1 and 999.');
+        return;
+      }
+
+      // Update cart and UI
+      updateQuantity(productId, newQuantity);
+
+      const label = container.querySelector('.quantity-label');
+      label.innerText = newQuantity;
+
+      container.classList.remove('is-editing-quantity');
+    }
+  });
+});
+
 
 
       document.querySelectorAll('.js-delivery-option').forEach((element) => {
@@ -199,6 +233,7 @@ export function renderOrderSummary(){
           const productId = element.dataset.productId;
           const deliveryOptionId = element.dataset.deliveryOptionId;
           updateDeliveryOption(productId, deliveryOptionId);
+          renderOrderSummary();
         });
       });
 }
