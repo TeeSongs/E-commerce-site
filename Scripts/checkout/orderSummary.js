@@ -5,13 +5,45 @@ import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js'
 import {deliveryOptions, getDeliveryOption} from '../../data/deliveryOptions.js';
 import { updateCartQuantity } from '../checkout.js';
 import { updateQuantity } from '../../data/cart.js';
+import { renderPaymentSummary } from './paymentSummary.js';
+
+
+const now = dayjs();
+
+
+const weekdays = [];
+
+for (let i = 0; i < 7; i++) {
+  const day = dayjs().day(i).format('ddd');
+  weekdays.push(day);
+}
+console.log(weekdays)
+
+function isWeekend(date) {
+  const day = date.format("dddd"); // Get full name like "Monday", "Sunday"
+
+  if (day === "Saturday" || day === "Sunday") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// Example usage:
+const today = dayjs(); // or any other dayjs date
+console.log(isWeekend(today)); // true or false
 
 
 
-// const today = dayjs();
-// const deliveryDate = today.add(7, 'days');
-// console.log(deliveryDate)
-// console.log(deliveryDate.format('dddd', 'MMMM', 'D'))
+
+console.log(now.format('dddd'))
+console.log(now.format(`MMMM D`))
+
+const nextMonth = now.add(1, 'month');
+console.log(nextMonth.format(`MMMM D YYYY`))
+
+const lastMonth = now.subtract(1, `month`);
+console.log(`One month ago: ${lastMonth.format(`MMMM D`)}`)
 
 export function renderOrderSummary(){
   
@@ -135,6 +167,7 @@ export function renderOrderSummary(){
           );
           container.remove();
           updateCartQuantity()
+          renderPaymentSummary();
         });
       });
 
@@ -221,6 +254,7 @@ document.querySelectorAll('.js-quantity-input').forEach((input) => {
           const deliveryOptionId = element.dataset.deliveryOptionId;
           updateDeliveryOption(productId, deliveryOptionId);
           renderOrderSummary();
+          renderPaymentSummary();
         });
       });
 }
