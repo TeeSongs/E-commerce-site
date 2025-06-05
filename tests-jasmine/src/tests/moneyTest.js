@@ -37,3 +37,5 @@ if (formatCurrency(2000.4) === `20.00`){
   console.log(`failed`)
 }
 
+
+// using a popular testing framework: Jasmine, there are other testing frames works too
