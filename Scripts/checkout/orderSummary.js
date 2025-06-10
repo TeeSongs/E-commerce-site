@@ -154,7 +154,10 @@ export function renderOrderSummary(){
 
       return html; 
       }
-      document.querySelector('.js-order-summary').innerHTML = cartSummaryHTML;
+      const orderSummaryEl = document.querySelector('.js-order-summary');
+      if (orderSummaryEl) {
+        orderSummaryEl.innerHTML = cartSummaryHTML;
+      }
 
       document.querySelectorAll('.js-delete-link').forEach((link) => {
         link.addEventListener('click', () => {
